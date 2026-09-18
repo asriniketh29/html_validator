@@ -10,7 +10,10 @@ def validate_html(html):
     >>> validate_html('<strong>example')
     False
     '''
-    tags = _extract_tags(html)
+    try:
+        tags = _extract_tags(html)
+    except ValueError:
+        return False
     stack = []
 
     for tag in tags:
@@ -49,6 +52,8 @@ def _extract_tags(html):
 
     for char in html:
         if char == "<":
+            if in_tag:
+                raise ValueError("found < without matching >")
             in_tag = True
             current_tag = "<"
         elif char == ">" and in_tag:
@@ -58,5 +63,7 @@ def _extract_tags(html):
             current_tag = ""
         elif in_tag:
             current_tag += char
+    if in_tag:
+        raise ValueError("found < without matching >")
 
     return tags
